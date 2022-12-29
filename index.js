@@ -20,6 +20,8 @@ async function run(){
     try{
         const postsCollection = client.db('social-media').collection('posts')
 
+        const aboutCollection = client.db('social-media').collection('about')
+
 
         app.post('/addPost', async(req, res) =>{
             const user = req.body 
@@ -34,6 +36,7 @@ async function run(){
             res.send(post)
         })
 
+
         app.get('/3posts', async (req, res) => {
             const query = {}
             const cursor = postsCollection.find(query)
@@ -46,6 +49,30 @@ async function run(){
             const query = { _id: ObjectId(id) }
             const postDetails = await postsCollection.findOne(query)
             res.send(postDetails)
+        })
+
+        app.get('/about', async(req, res)=>{
+            const query = {}
+            const post = await aboutCollection.find(query).toArray()
+            res.send(post)
+        })
+
+        app.put('/about/:id', async(req, res) =>{
+            const id = req.params.id
+            const filter = {_id: ObjectId(id)}
+            const data = req.body
+            const option = {upsert: true}
+            const updateData ={
+                $set: {
+                    name: data.name,
+                    email: data.email,
+                    university: data.university,
+                    address: data.address
+                }
+            }
+
+            const result = await aboutCollection.updateOne(filter, updateData, option)
+            res.send(result)
         })
 
     }
